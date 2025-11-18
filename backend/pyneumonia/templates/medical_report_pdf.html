@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Médico</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; margin: 40px; color: #222; }
+        .header { background: #2563eb; color: #fff; padding: 20px; border-radius: 10px 10px 0 0; }
+        .section { margin-bottom: 24px; }
+        .section-title { font-size: 1.1em; font-weight: bold; margin-bottom: 8px; color: #2563eb; }
+        .box { background: #f3f4f6; border-radius: 8px; padding: 16px; margin-bottom: 8px; }
+        .signatures { display: flex; gap: 40px; margin-top: 32px; }
+        .signature-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; width: 45%; }
+        .label { font-size: 0.95em; color: #555; margin-bottom: 4px; }
+        .value { font-size: 1.1em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Reporte Médico</h1>
+        <p>ID: {{ report.id }}</p>
+        <p>Fecha: {{ report.created_at|date:'d/m/Y H:i' }}</p>
+        <p>Título: <strong>{{ report.title }}</strong></p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Información del Paciente</div>
+        <div class="box">
+            <div class="label">Nombre:</div>
+            <div class="value">{{ report.patient.full_name }}</div>
+            <div class="label">DNI:</div>
+            <div class="value">{{ report.patient.dni }}</div>
+            <div class="label">Edad:</div>
+            <div class="value">{{ report.patient.age }} años</div>
+            <div class="label">Género:</div>
+            <div class="value">{{ report.patient.gender }}</div>
+        </div>
+    </div>
+
+    {% if report.diagnosis %}
+    <div class="section">
+        <div class="section-title">Diagnóstico IA</div>
+        <div class="box">
+            <div class="label">Predicción:</div>
+            <div class="value">{{ report.diagnosis.predicted_class }}</div>
+            <div class="label">Confianza:</div>
+            <div class="value">{{ report.diagnosis.confidence }}%</div>
+            <div class="label">Estado:</div>
+            <div class="value">{% if report.diagnosis.is_reviewed %}Revisado{% else %}Pendiente{% endif %}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <div class="section-title">Hallazgos Radiológicos</div>
+        <div class="box">{{ report.findings|linebreaksbr }}</div>
+    </div>
+    <div class="section">
+        <div class="section-title">Impresión Diagnóstica</div>
+        <div class="box">{{ report.impression|linebreaksbr }}</div>
+    </div>
+    {% if report.recommendations %}
+    <div class="section">
+        <div class="section-title">Recomendaciones Clínicas</div>
+        <div class="box">{{ report.recommendations|linebreaksbr }}</div>
+    </div>
+    {% endif %}
+
+    <div class="signatures">
+        <div class="signature-box">
+            <div class="label">Radiólogo</div>
+            {% if report.radiologist_signed_by %}
+                <div class="value">{{ report.radiologist_signed_by.get_full_name }}</div>
+                <div class="label">Firmado:</div>
+                <div class="value">{{ report.radiologist_signed_at|date:'d/m/Y H:i' }}</div>
+            {% else %}
+                <div class="value">Pendiente de firma</div>
+            {% endif %}
+        </div>
+        <div class="signature-box">
+            <div class="label">Médico Tratante</div>
+            {% if report.received_by %}
+                <div class="value">{{ report.received_by.get_full_name }}</div>
+                <div class="label">Recibido:</div>
+                <div class="value">{{ report.received_at|date:'d/m/Y H:i' }}</div>
+            {% else %}
+                <div class="value">Pendiente de recepción</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
